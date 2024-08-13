@@ -7,9 +7,6 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.ColorInt
 import androidx.annotation.Dimension
-import kotlin.math.min
-import kotlin.math.sqrt
-import kotlin.random.Random
 
 class ParticleView @JvmOverloads constructor(
     context: Context,
@@ -189,7 +186,7 @@ class ParticleView @JvmOverloads constructor(
 
     private fun setupParticles() {
         if (null == emitter) {
-            attach(Emitter())
+            attach(LinkedWebEmitter())
         }
         emitter?.setupParticles(width, height, particleMinRadius, particleMaxRadius, particleCount)
     }
@@ -234,8 +231,8 @@ class ParticleView @JvmOverloads constructor(
         }
     }
 
-    private var emitter: Emitter? = null
-    fun attach(emitter: Emitter) {
+    private var emitter: IEmitter? = null
+    fun attach(emitter: IEmitter) {
         this.emitter = emitter
         emitter?.run {
             setParticleColor(_particleColor)
