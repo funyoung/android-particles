@@ -81,18 +81,16 @@ class LinkedWebEmitter : IEmitter {
                 particles[i].y = 0F
             }
 
-            canvas?.let {
-                if (particleLinesEnabled) {
-                    for (j in 0 until particleCount) {
-                        if (i != j) {
-                            linkParticles(it, particles[i], particles[j])
-                        }
+            if (particleLinesEnabled) {
+                for (j in 0 until particleCount) {
+                    if (i != j) {
+                        linkParticles(canvas, particles[i], particles[j])
                     }
                 }
             }
 
             paintParticles.alpha = particles[i].alpha
-            canvas?.drawCircle(particles[i].x, particles[i].y, particles[i].radius, paintParticles)
+            canvas.drawCircle(particles[i].x, particles[i].y, particles[i].radius, paintParticles)
         }
     }
 
@@ -103,5 +101,4 @@ class LinkedWebEmitter : IEmitter {
     override fun setParticleColor(value: Int) {
         paintParticles.color = value
     }
-
 }
