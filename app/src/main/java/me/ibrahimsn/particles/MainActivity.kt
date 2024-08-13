@@ -3,6 +3,7 @@ package me.ibrahimsn.particles
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import me.ibrahimsn.particle.LinkedWebEmitter
+import me.ibrahimsn.particle.MeteorShowerEmitter
 import me.ibrahimsn.particle.ParticleView
 
 class MainActivity : AppCompatActivity() {
@@ -14,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         particleView = findViewById(R.id.particleView)
-        particleView.attach(LinkedWebEmitter())
+        particleView.attach(MeteorShowerEmitter())
     }
 
     override fun onResume() {
