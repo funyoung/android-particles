@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import me.ibrahimsn.particle.LinkedWebEmitter
 import me.ibrahimsn.particle.MeteorShowerEmitter
 import me.ibrahimsn.particle.ParticleView
+import me.ibrahimsn.particle.RainfallEmitter
+import me.ibrahimsn.particle.RainfallWithPetalsEmitter
+import me.ibrahimsn.particle.SnowfallEmitter
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,7 +18,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         particleView = findViewById(R.id.particleView)
-        particleView.attach(MeteorShowerEmitter())
+//        particleView.attach(LinkedWebEmitter())
+//        particleView.attach(MeteorShowerEmitter())
+//        particleView.attach(SnowfallEmitter())
+//        particleView.attach(RainfallWithPetalsEmitter())
+        particleView.attach(RainfallEmitter())
     }
 
     override fun onResume() {
