@@ -2,6 +2,7 @@ package me.ibrahimsn.particles
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import me.ibrahimsn.particle.Emitter
 import me.ibrahimsn.particle.ParticleView
 
 class MainActivity : AppCompatActivity() {
@@ -13,6 +14,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         particleView = findViewById(R.id.particleView)
+        particleView.attach(Emitter())
     }
 
     override fun onResume() {

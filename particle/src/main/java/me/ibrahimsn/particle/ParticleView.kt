@@ -17,12 +17,8 @@ class ParticleView @JvmOverloads constructor(
     defStyleAttr: Int = R.attr.ParticleViewStyle
 ) : SurfaceView(context, attrs, defStyleAttr), SurfaceHolder.Callback {
 
-    private val particles = mutableListOf<Particle>()
     private var surfaceViewThread: SurfaceViewThread? = null
     private var hasSurface: Boolean = false
-    private var hasSetup = false
-
-    private val path = Path()
 
     // Attribute Defaults
     private var _particleCount = 20
@@ -84,14 +80,14 @@ class ParticleView @JvmOverloads constructor(
         @ColorInt get() = _particleColor
         set(@ColorInt value) {
             _particleColor = value
-            paintParticles.color = value
+            emitter?.setParticleColor(value)
         }
 
     var particleLineColor: Int
         @ColorInt get() = _particleLineColor
         set(@ColorInt value) {
             _particleLineColor = value
-            paintLines.color = value
+            emitter?.setLineColor(value)
         }
 
     var particleLinesEnabled: Boolean
@@ -99,19 +95,6 @@ class ParticleView @JvmOverloads constructor(
         set(value) {
             _particleLinesEnabled = value
         }
-
-    // Paints
-    private val paintParticles: Paint = Paint().apply {
-        isAntiAlias = true
-        style = Paint.Style.FILL
-        strokeWidth = 2F
-    }
-
-    private val paintLines: Paint = Paint().apply {
-        isAntiAlias = true
-        style = Paint.Style.FILL_AND_STROKE
-        strokeWidth = 2F
-    }
 
     init {
         obtainStyledAttributes(attrs, defStyleAttr)
@@ -205,22 +188,10 @@ class ParticleView @JvmOverloads constructor(
     }
 
     private fun setupParticles() {
-        if (!hasSetup) {
-            hasSetup = true
-            particles.clear()
-            for (i in 0 until particleCount) {
-                particles.add(
-                    Particle(
-                        Random.nextInt(particleMinRadius, particleMaxRadius).toFloat(),
-                        Random.nextInt(0, width).toFloat(),
-                        Random.nextInt(0, height).toFloat(),
-                        Random.nextInt(-2, 2),
-                        Random.nextInt(-2, 2),
-                        Random.nextInt(150, 255)
-                    )
-                )
-            }
+        if (null == emitter) {
+            attach(Emitter())
         }
+        emitter?.setupParticles(width, height, particleMinRadius, particleMaxRadius, particleCount)
     }
 
     private inner class SurfaceViewThread : Thread() {
@@ -237,39 +208,11 @@ class ParticleView @JvmOverloads constructor(
 
                     synchronized (holder) {
                         // Clear screen every frame
-                        canvas?.drawColor(particlesBackgroundColor, PorterDuff.Mode.SRC)
-
-                        for (i in 0 until particleCount) {
-                            particles[i].x += particles[i].vx
-                            particles[i].y += particles[i].vy
-
-                            if (particles[i].x < 0) {
-                                particles[i].x = width.toFloat()
-                            } else if (particles[i].x > width) {
-                                particles[i].x = 0F
-                            }
-
-                            if (particles[i].y < 0) {
-                                particles[i].y = height.toFloat()
-                            } else if (particles[i].y > height) {
-                                particles[i].y = 0F
-                            }
-
-                            canvas?.let {
-                                if (particleLinesEnabled) {
-                                    for (j in 0 until particleCount) {
-                                        if (i != j) {
-                                            linkParticles(it, particles[i], particles[j])
-                                        }
-                                    }
-                                }
-                            }
-
-                            paintParticles.alpha = particles[i].alpha
-                            canvas?.drawCircle(particles[i].x, particles[i].y, particles[i].radius, paintParticles)
+                        canvas?.let {
+                            it.drawColor(particlesBackgroundColor, PorterDuff.Mode.SRC)
+                            emitter?.onDraw(it, width, height, particleLinesEnabled, particleCount)
                         }
                     }
-
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
@@ -291,25 +234,12 @@ class ParticleView @JvmOverloads constructor(
         }
     }
 
-    private var dx: Float = 0f
-    private var dy: Float = 0f
-    private var dist: Float = 0f
-    private var distRatio: Float = 0f
-
-    private fun linkParticles(canvas: Canvas, p1: Particle, p2: Particle) {
-        dx = p1.x - p2.x
-        dy = p1.y - p2.y
-        dist = sqrt(dx * dx + dy * dy)
-
-        if (dist < 220) {
-            path.moveTo(p1.x, p1.y)
-            path.lineTo(p2.x, p2.y)
-            distRatio = (220 - dist) / 220
-
-            paintLines.alpha = (min(p1.alpha, p2.alpha) * distRatio / 2).toInt()
-            canvas.drawPath(path, paintLines)
-
-            path.reset()
+    private var emitter: Emitter? = null
+    fun attach(emitter: Emitter) {
+        this.emitter = emitter
+        emitter?.run {
+            setParticleColor(_particleColor)
+            setLineColor(_particleLineColor)
         }
     }
 }
